@@ -1,0 +1,21 @@
+<nav class="flex flex-col items-center bg-base-300 gap-0.5 py-2 px-4 rounded-lg">
+    <ul class="flex flex-row gap-4">
+        @foreach (var link in socialLinks)
+        {
+            <li class="flex flex-row gap-2 items-center">
+                <a href="@link.Url" class="hover:text-error">
+                    <Icon name="@link.Icon" class="w-8" />
+                </a>
+            </li>
+        }
+    </ul>
+    <span>社交链接</span>
+</nav>
+
+@code {
+    record SocialLink(string Name, string Url, string Icon);
+    SocialLink[] socialLinks =
+    [
+        new ("Github", "https://github.com/WoofZJ", "brand-github"),
+    ];
+}
