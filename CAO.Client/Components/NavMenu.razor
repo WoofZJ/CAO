@@ -1,0 +1,33 @@
+<ul
+  class=@(IsMobile
+    ? "menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+    : "menu menu-horizontal px-1 py-0")
+>
+    @foreach (var item in navMenu)
+    {
+        <li>
+            <NavLink href="@item.Url"
+                     class="text-base"
+                     ActiveClass="text-error"
+                     Match="NavLinkMatch.All"
+            >
+                <Icon name="@item.Icon" class="w-5"/>
+                @item.Name
+            </NavLink>
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public bool IsMobile { get; set; } = false;
+    record NavMenuItem(string Name, string Url, string Icon);
+    NavMenuItem[] navMenu =
+    [
+        new ("首页", "/", "home"),
+        new ("标签", "/tag", "tag"),
+        new ("归档", "/archive", "archive"),
+        new ("时光轴", "/timeline", "timeline-event-exclamation"),
+        new ("留言板", "/message", "message-heart")
+    ];
+}
