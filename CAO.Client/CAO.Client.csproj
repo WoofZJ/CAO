@@ -5,9 +5,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Features>use-roslyn-tokenizer;$(Features)</Features>
+    <BuildDateTime>$([System.DateTime]::UtcNow)</BuildDateTime>
+    <Version>0.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>BuildDateTime</_Parameter1>
+      <_Parameter2>$(BuildDateTime)</_Parameter2>
+    </AssemblyAttribute>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.6" PrivateAssets="all" />
   </ItemGroup>

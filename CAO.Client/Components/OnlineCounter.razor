@@ -1,0 +1,77 @@
+@using System.Reflection;
+@using System.Timers;
+
+<div class="flex flex-col gap-2 items-center">
+    <div class="divider my-0">
+        <div>
+            本站
+            <a class="hover:text-error" href="/timeline">
+                <span class="font-bold mx-0">
+                    v@(version)
+                </span>
+            </a>
+            已在线
+        </div>
+    </div>
+    <div class="grid grid-flow-col gap-5 text-center auto-cols-max">
+        @for (int i = 0; i < 4; ++i)
+        {
+            <div class="flex flex-col p-2 bg-neutral rounded-box text-neutral-content">
+                <span class="countdown font-mono align-center text-3xl">
+                    <span class="countdown-value mx-auto" style="--value: @values[i]"></span>
+                </span>
+                @units[i]
+            </div>
+        }
+    </div>
+    <div class="flex flex-row items-end">
+        <span>构建于</span>
+        <DateTimeWidget utcDateTime="@buildDateTime" />
+    </div>
+    <div class="divider m-0 h-1"></div>
+</div>
+
+@code {
+    string version = string.Empty;
+    string[] units = ["天", "时", "分", "秒"];
+    DateTime buildDateTime;
+    int[] values = [0, 0, 0, 0];
+
+    protected override void OnInitialized()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        version = assembly.GetName().Version?.ToString() ?? "-.-.-.-";
+        version = version.Substring(0, version.LastIndexOf('.'));
+
+        var buildDateAttribute = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+        .FirstOrDefault(a => a.Key == "BuildDateTime");
+        DateTime.TryParse(buildDateAttribute?.Value, out buildDateTime);
+
+        var duration = DateTime.UtcNow - buildDateTime;
+        values = [duration.Days, duration.Hours, duration.Minutes, duration.Seconds];
+        Timer timer = new Timer(1000);
+        timer.Elapsed += UpdateCounter;
+        timer.Start();
+    }
+
+    private void UpdateCounter(object? sender, ElapsedEventArgs e)
+    {
+        values[3] += 1;
+        if (values[3] >= 60)
+        {
+            values[3] = 0;
+            values[2] += 1;
+            if (values[2] >= 60)
+            {
+                values[2] = 0;
+                values[1] += 1;
+                if (values[1] >= 24)
+                {
+                    values[1] = 0;
+                    values[0] += 1;
+                }
+            }
+        }
+        StateHasChanged();
+    }
+}
