@@ -1,0 +1,16 @@
+{
+  "name": "cao-client",
+  "version": "0.0.0",
+  "author": "WoofZJ",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i app.css -o wwwroot/css/app.css",
+    "watch:css": "npx @tailwindcss/cli -i app.css -o wwwroot/css/app.css --watch"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.11",
+    "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "daisyui": "^5.0.43"
+  }
+}
