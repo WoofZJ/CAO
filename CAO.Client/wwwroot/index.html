@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh" data-theme="cupcake">
 
 <head>
     <meta charset="utf-8" />
@@ -12,12 +12,34 @@
 
 <body>
     <div id="app">
-    </div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
+        <!-- loading screen -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+                flex flex-col items-center gap-2">
+            <h1 class="text-4xl">CodeArt.Online</h1>
+            <div class="flex flex-row items-center gap-2">
+                <span class="loading loading-spinner text-error"></span>
+                <span id="startup-loading-text">正在加载</span>
+            </div>
+            <span id="startup-slow-loading-text"></span>
+            <script>
+                const loadingText = document.querySelector('#startup-loading-text');
+                var count = 0;
+                const id = setInterval(() => {
+                    const percentage = document.documentElement.style
+                        .getPropertyValue('--blazor-load-percentage') || "0";
+                    count++;
+                    const percentageValue = parseFloat(percentage);
+                    loadingText.innerText = `正在加载 (${percentageValue.toFixed(1)}%)`;
+                    if (count == 10) {
+                        const slowLoadingText = document.querySelector('#startup-slow-loading-text');
+                        slowLoadingText.innerText = '初次加载时间较长，请稍等...';
+                    }
+                    if (percentage === '100%') {
+                        clearInterval(id);
+                    }
+                }, 500);
+            </script>
+        </div>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>

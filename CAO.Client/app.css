@@ -1,4 +1,6 @@
 @import "tailwindcss";
-@plugin "daisyui";
 @source "**/*.razor";
 @source "**/*.html";
+@plugin "daisyui" {
+    themes: cupcake, dark;
+}
