@@ -41,6 +41,16 @@
             </script>
         </div>
     </div>
+    <!-- theme control -->
+    <script>
+        let savedTheme = localStorage.getItem("theme");
+        if (!savedTheme) {
+            savedTheme = window.matchMedia("(prefers-color-scheme: dark)")
+                .matches ? "dark" : "cupcake";
+            localStorage.setItem("theme", savedTheme);
+        }
+        document.documentElement.setAttribute("data-theme", savedTheme);
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 

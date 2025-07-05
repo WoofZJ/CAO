@@ -1,0 +1,15 @@
+<label class="toggle w-14 h-8 text-base-content">
+    <input id="theme-switch" type="checkbox" class="theme-controller" />
+    <Icon name="sun" class="w-6" />
+    <Icon name="moon" class="w-6" />
+</label>
+
+<script>
+    const input = document.getElementById("theme-switch");
+    input.checked = (localStorage.getItem("theme") === "dark");
+    input.addEventListener("change", (event) => {
+        const theme = (input.checked ? "dark" : "cupcake");
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+    });
+</script>
