@@ -1,0 +1,23 @@
+@if (ShowDate)
+{
+    <div class="badge gap-1">
+        <Icon name="calendar-month" class="w-4" />
+        <span>@UtcDateTime.AddHours(8).ToString("yyyy-MM-dd")</span>
+    </div>
+}
+@if (ShowTime)
+{
+    <div class="badge gap-1">
+        <Icon name="clock" class="w-4" />
+        <span>@UtcDateTime.AddHours(8).ToString("HH:mm:ss")</span>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool ShowDate { get; set; } = true;
+    [Parameter]
+    public bool ShowTime { get; set; } = true;
+    [Parameter]
+    public DateTime UtcDateTime { get; set; } = DateTime.Now;
+}
