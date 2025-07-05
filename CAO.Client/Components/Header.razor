@@ -1,0 +1,22 @@
+<header class="navbar bg-base-200 shadow-md rounded-b-2xl py-0 lg:px-4 sticky top-0 z-50">
+    <div class="navbar-start">
+        <div class="dropdown">
+            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                <Icon name="menu-2" class="w-6" />
+            </div>
+            <NavMenu isMobile="true" />
+        </div>
+        <a class="btn btn-ghost" href="/">
+            <img src="/favicon.png" width="40" />
+            <h2 class="text-xl">
+                CodeArt.Online
+            </h2>
+        </a>
+    </div>
+    <div class="navbar-center hidden lg:flex">
+        <NavMenu isMobile="false" />
+    </div>
+    <div class="navbar-end">
+        <ThemeSwitch />
+    </div>
+</header>
