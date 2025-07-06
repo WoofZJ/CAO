@@ -1,0 +1,70 @@
+<div class="collapse collapse-open bg-base-100 border-base-300 border">
+    <div class="collapse-title font-semibold text-xl bg-base-200 px-4">
+        <div class="flex items-center justify-between">
+            <span class="flex flex-row items-center gap-1">
+                <Icon name="@Icon" class="w-6" />
+                @Name
+                - 共
+                @TotalCount
+                @Unit
+            </span>
+            @if (ShowPagination)
+            {
+                <div class="join">
+                    <button class="join-item btn" onclick="@(() => UpdateCurrentPage(-1))"
+                        disabled="@(startIndex <= 1)">
+                        <Icon name="chevron-left" class="w-5" />
+                    </button>
+                    <div class="join-item btn w-24">
+                        @startIndex - @endIndex
+                    </div>
+                    <button class="join-item btn" onclick="@(() => UpdateCurrentPage(1))"
+                        disabled="@(endIndex >= TotalCount)">
+                        <Icon name="chevron-right" class="w-5" />
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="collapse-content py-2 px-0">
+        @if (ElementFactory != null)
+        {
+            @for (int i = startIndex; i <= endIndex; i++)
+            {
+                @ElementFactory(i, PageSize, TotalCount)
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Icon { get; set; } = string.Empty;
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+    [Parameter]
+    public int TotalCount { get; set; } = 0;
+    [Parameter]
+    public string Unit { get; set; } = string.Empty;
+    [Parameter]
+    public bool ShowPagination { get; set; } = true;
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+    [Parameter]
+    public Func<int, int, int, RenderFragment>? ElementFactory { get; set; }
+
+    int startIndex;
+    int endIndex;
+
+    protected override void OnParametersSet() => UpdateCurrentPage(0);
+
+    void UpdateCurrentPage(int pageDelta)
+    {
+        CurrentPage = Math.Min(Math.Max(1, CurrentPage + pageDelta), TotalCount / PageSize + (TotalCount % PageSize == 0 ? 0 :
+        1));
+        startIndex = (CurrentPage - 1) * PageSize + 1;
+        endIndex = Math.Min(CurrentPage * PageSize, TotalCount);
+    }
+}
