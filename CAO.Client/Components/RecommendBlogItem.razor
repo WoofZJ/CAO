@@ -1,0 +1,57 @@
+<a href="@($"/blog/{Slug}")"
+    class="flex flex-col lg:flex-row items-center lg:items-start py-2 px-4 gap-x-4 hover:bg-base-200">
+    <div class="flex flex-row lg:min-w-12 lg:flex-col items-center gap-y-1 gap-x-1">
+        <div class="text-2xl opacity-50 tabular-nums px-2">
+            @Id.ToString("00")
+        </div>
+        @if (IsSticky)
+        {
+            <span class="badge badge-accent text-sm font-semibold lg:px-0 lg:w-full">
+                置顶
+            </span>
+        }
+        @if (isNew)
+        {
+            <span class="badge badge-secondary text-sm font-semibold lg:px-0 lg:w-full">
+                NEW
+            </span>
+        }
+    </div>
+    <div class="flex flex-col gap-1">
+        <h2 class="text-2xl text-center lg:text-start font-bold">
+            @Title
+        </h2>
+        <div class="flex flex-row gap-x-1 flex-wrap justify-center lg:justify-start">
+            <DateTimeWidget utcDateTime="@CreateAt" />
+            <TagsWidget tags="@Tags" />
+        </div>
+        <p class="list-col-wrap text-base">
+            @Description
+        </p>
+    </div>
+    @if (!string.IsNullOrEmpty(ImageUrl))
+    {
+        <img class="w-full mt-2 lg:my-auto lg:max-w-1/3 max-h-48 object-cover rounded-xl" src="@ImageUrl" />
+    }
+</a>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+    [Parameter]
+    public bool IsSticky { get; set; } = false;
+    [Parameter]
+    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+    [Parameter]
+    public string ImageUrl { get; set; } = string.Empty;
+    [Parameter]
+    public string Description { get; set; } = string.Empty;
+    [Parameter]
+    public IEnumerable<string> Tags { get; set; } = [];
+
+    bool isNew => (DateTime.UtcNow - CreateAt).TotalDays <= 7;
+}
