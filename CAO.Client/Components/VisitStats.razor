@@ -1,0 +1,43 @@
+<div class="stats stashadow border-1 py-1 bg-base-300 border-none items-center">
+    @foreach (var item in visitStats)
+    {
+        <div class="stat px-4 py-0">
+            <div class="stat-title">@item.Name</div>
+            <div class="stat-value text-2xl">
+                <span class="@(item.Total == null ? " text-error" : "")">
+                    @FormatNumber(item.Total)
+                </span>
+            </div>
+            <div class=" stat-desc">
+                本月:
+                <span class="@("font-semibold " + (item.Monthly == null ? " text-error" : ""))">
+                    @FormatNumber(item.Monthly)
+                </span>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    record VisitStatItem(string Name, int? Total = null, int? Monthly = null);
+
+    VisitStatItem[] visitStats =
+    [
+        new ("本页访问量"),
+        new ("本站访问量"),
+        new ("本站访客数"),
+    ];
+
+    string FormatNumber(int? number) => number switch
+    {
+        null => "--",
+        (< 1000) => $"{number}",
+        (< 10_000) => $"{number / 1000.0: 0.##}K",
+        (< 100_000) => $"{number / 1000.0: 0.#}K",
+        (< 1_000_000) => $"{number / 1000.0: 0}K",
+        (< 10_000_000) => $"{number / 1_000_000.0: 0.##}M",
+        (< 100_000_000) => $"{number / 1_000_000.0: 0.#}M",
+        (< 1_000_000_000) => $"{number / 1_000_000.0: 0}M",
+        _ => "1B+"
+    };
+}
