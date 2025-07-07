@@ -1,0 +1,20 @@
+<div role="alert" class="@($"alert alert-soft gap-2 {alertType}")">
+    <Icon name="alert-circle" class="w-5" />
+    <span>@Message</span>
+</div>
+
+@code {
+    [Parameter]
+    public string Type { get; set; } = string.Empty;
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    string alertType => Type switch
+    {
+        "success" => "alert-success",
+        "info" => "alert-info",
+        "warning" => "alert-warning",
+        "error" => "alert-error",
+        _ => "alert-error"
+    };
+}

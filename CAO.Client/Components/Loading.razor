@@ -1,0 +1,9 @@
+<div class="flex flex-col items-center">
+    <div class="loading loading-spinner loading-lg"></div>
+    <span>@Message</span>
+</div>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+}
