@@ -8,7 +8,7 @@
                 @TotalCount
                 @Unit
             </span>
-            @if (ShowPagination)
+            @if (TotalCount > PageSize)
             {
                 <div class="join">
                     <button class="join-item btn" onclick="@(() => UpdateCurrentPage(-1))"
@@ -26,7 +26,7 @@
             }
         </div>
     </div>
-    <div class="collapse-content py-2 px-0">
+    <div class="collapse-content @Class">
         @if (ElementFactory != null)
         {
             @for (int i = startIndex; i <= endIndex; i++)
@@ -47,13 +47,13 @@
     [Parameter]
     public string Unit { get; set; } = string.Empty;
     [Parameter]
-    public bool ShowPagination { get; set; } = true;
-    [Parameter]
     public int PageSize { get; set; } = 10;
     [Parameter]
     public int CurrentPage { get; set; } = 1;
     [Parameter]
     public Func<int, int, int, RenderFragment>? ElementFactory { get; set; }
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
 
     int startIndex;
     int endIndex;
