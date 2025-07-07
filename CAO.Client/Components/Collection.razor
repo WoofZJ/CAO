@@ -1,5 +1,5 @@
-<div class="collapse collapse-open bg-base-100 border-base-300 border">
-    <div class="collapse-title font-semibold text-xl bg-base-200 px-4">
+<div class="rounded-field bg-base-100 border-base-300 border overflow-hidden">
+    <div class="rounded-t-field py-4 font-semibold text-xl bg-base-200 px-4">
         <div class="flex items-center justify-between">
             <span class="flex flex-row items-center gap-1">
                 <Icon name="@Icon" class="w-6" />
@@ -26,7 +26,7 @@
             }
         </div>
     </div>
-    <div class="collapse-content @Class">
+    <div class="@Class">
         @if (ElementFactory != null)
         {
             @for (int i = startIndex; i <= endIndex; i++)
