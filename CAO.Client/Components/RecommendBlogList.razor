@@ -1,0 +1,51 @@
+@using CAO.Shared.Dtos;
+@inject BlogService BlogService;
+
+@if (loading)
+{
+    <Loading message="正在加载推荐文章..." />
+}
+else if(recommendBlogs is null)
+{
+    <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
+
+}
+else if (recommendBlogs.Count == 0)
+{
+    <Alert type="info" message="暂时还没有推荐文章，过几天再来看看吧 >-<" />
+}
+else
+{
+    <Collection
+        icon="file-like"
+        name="推荐文章"
+        totalCount="@recommendBlogs.Count"
+        pageSize="4"
+        unit="篇"
+        elementFactory="recommendBlogFactory"
+    />
+}
+
+@code {
+    Func<int, int, int, RenderFragment> recommendBlogFactory => 
+        (index, pageSize, totalCount) =>
+        @<div>
+            <RecommendBlogItem
+                id="index"
+                blogMetadata="recommendBlogs![index-1]"
+            />
+            @if (index % pageSize != 0 && index != totalCount)
+            {
+                <div class="divider m-0"></div>
+            }
+        </div>;
+
+    bool loading = true;
+    List<BlogMetadataResponse>? recommendBlogs;
+    protected override async Task OnInitializedAsync()
+    {
+        recommendBlogs = (await BlogService.GetRecommendedBlogsAsync())
+            ?.OrderByDescending(blog => (blog.IsSticky, blog.CreatedAt)).ToList();
+        loading = false;
+    }
+}
