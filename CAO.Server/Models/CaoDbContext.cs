@@ -1,0 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace CAO.Server.Models;
+
+public class CaoDbContext(DbContextOptions<CaoDbContext> options)
+    : DbContext(options)
+{
+    public DbSet<Blog> Blogs { get; set; }
+}
