@@ -1,6 +1,6 @@
 {
   "name": "cao-client",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "WoofZJ",
   "scripts": {
     "build:css": "npx @tailwindcss/cli -i app.css -o wwwroot/css/app.css",
