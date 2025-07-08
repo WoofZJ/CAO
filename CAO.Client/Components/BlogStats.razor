@@ -1,7 +1,10 @@
-<div class="stats-vertical shadow bg-base-200">
+@using CAO.Shared.Dtos;
+@inject BlogService blogService;
+
+<div class="stats-vertical shadow bg-base-200 w-full">
     @foreach (var item in blogStats)
     {
-        <a class="stat hover:bg-base-300 hover:text-error px-24 lg:px-10 xl:px-12" href="@item.Url">
+        <a class="stat hover:bg-base-300 hover:text-error px-24 lg:px-12" href="@item.Url">
             <div class="stat-figure">
                 <Icon name="@item.Icon" class="w-8" />
             </div>
@@ -17,7 +20,7 @@
                 }
                 <span class="font-normal text-xl">&nbsp;@item.Unit</span>
             </div>
-            <div class="stat-desc">
+            <div class="stat-desc text-wrap">
                 @item.Description
             </div>
         </a>
@@ -25,9 +28,15 @@
 </div>
 
 @code {
-    record BlogStatItem(
-        string Name, string Unit, string Icon, string Url,
-        int? Value = null, string? Description = null);
+    class BlogStatItem(string Name, string Unit, string Icon, string Url)
+    {
+        public string Name { get; } = Name;
+        public string Unit { get; } = Unit;
+        public string Icon { get; } = Icon;
+        public string Url { get; } = Url;
+        public int? Value { get; set; }
+        public RenderFragment? Description { get; set; }
+    }
 
     BlogStatItem[] blogStats =
     [
@@ -35,4 +44,62 @@
         new ("标签", "个", "tags", "/tag"),
         new ("留言", "条", "messages", "/message"),
     ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var stats = await blogService.GetBlogStatsAsync();
+        if (stats is not null)
+        {
+            blogStats[0].Value = stats.BlogCount;
+            blogStats[1].Value = stats.TagCount;
+            blogStats[2].Value = stats.MessageCount;
+            blogStats[0].Description =
+            @<div>
+                本月 |
+            @if (stats.MonthlyCreatedCount > 0)
+            {
+                <span class="text-success">
+                    新增
+                    <span class="font-bold">
+                        @(stats.MonthlyCreatedCount)
+                    </span>
+                    篇
+                </span>
+                <span> | </span>
+            }
+            @if (stats.MonthlyUpdatedCount > 0)
+            {
+                <span class="text-warning">
+                    修改
+                    <span class="font-bold">
+                        @(stats.MonthlyUpdatedCount)
+                    </span>
+                    篇
+                </span>
+                <span> | </span>
+            }
+            @if (stats.MonthlyCreatedCount == 0 && stats.MonthlyUpdatedCount == 0)
+            {
+                <span class="text-error">暂无产出</span>
+                <span> | </span>
+            }
+            </div>;
+            Console.WriteLine($"MostUsedTag: {stats.MostUsedTag}, UsedCount: {stats.UsedCount}");
+            if (!string.IsNullOrEmpty(stats.MostUsedTag))
+            {
+                blogStats[1].Description =
+                @<div>
+                    「
+                    <span class="text-primary-content">
+                        @(stats.MostUsedTag)
+                    </span>
+                    」用得最多，用了
+                    <span class="font-bold text-primary-content">
+                        @(stats.UsedCount)
+                    </span>
+                    次
+                </div>;
+            }
+        }
+    }
 }

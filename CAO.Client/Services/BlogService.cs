@@ -17,4 +17,8 @@ public class BlogService(ApiService apiService)
     public async Task<List<BlogMetadataResponse>?> GetRecommendedBlogsAsync() =>
         await _apiService.GetWithCacheAsync<List<BlogMetadataResponse>>(
             "blog/recommended", "blog_recommended", TimeSpan.FromMinutes(15));
+
+    public async Task<BlogStatsResponse?> GetBlogStatsAsync() =>
+        await _apiService.GetWithCacheAsync<BlogStatsResponse>(
+            "blog/stats", "blog_stats", TimeSpan.FromMinutes(15));
 }
