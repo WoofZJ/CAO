@@ -62,4 +62,41 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
             .ToListAsync();
         return Ok(blogs);
     }
+
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetBlogStats()
+    {
+        int blogCount = await _dbContext.Blogs.CountAsync(b => b.Status == BlogStatus.Published);
+        int monthlyCreatedCount = await _dbContext.Blogs
+            .CountAsync(b => b.Status == BlogStatus.Published && b.CreatedAt.Month == DateTime.UtcNow.Month
+                && b.CreatedAt.Year == DateTime.UtcNow.Year);
+        int monthlyUpdatedCount = await _dbContext.Blogs
+            .CountAsync(b => b.Status == BlogStatus.Published && b.UpdatedAt.Month == DateTime.UtcNow.Month
+                && b.UpdatedAt.Year == DateTime.UtcNow.Year);
+        int tagCount = await _dbContext.Blogs.SelectMany(b => b.Tags)
+            .Distinct().CountAsync();
+        string mostUsedTag = await _dbContext.Blogs
+            .SelectMany(b => b.Tags)
+            .GroupBy(t => t)
+            .OrderByDescending(g => g.Count())
+            .Select(g => g.Key)
+            .FirstOrDefaultAsync() ?? string.Empty;
+        int usedCount = await _dbContext.Blogs
+            .CountAsync(b => b.Tags.Any(t => t == mostUsedTag));
+        // TODO: Implement message model
+        int messageCount = 0;
+
+        var blogStats = new BlogStatsResponse
+        (
+            blogCount,
+            monthlyCreatedCount,
+            monthlyUpdatedCount,
+            tagCount,
+            mostUsedTag,
+            usedCount,
+            messageCount
+        );
+
+        return Ok(blogStats);
+    }
 }
