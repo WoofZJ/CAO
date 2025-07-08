@@ -10,10 +10,17 @@ public class ApiService(HttpClient httpClient, IMemoryCache cache)
 
     public async Task<T?> GetAsync<T>(string endpoint) where T : class
     {
-        var response = await _httpClient.GetAsync(endpoint);
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return await response.Content.ReadFromJsonAsync<T>();
+            var response = await _httpClient.GetAsync(endpoint);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<T>();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine(ex.Message);
         }
         return null;
     }
@@ -37,10 +44,17 @@ public class ApiService(HttpClient httpClient, IMemoryCache cache)
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
         where TRequest : class where TResponse : class
     {
-        var response = await _httpClient.PostAsJsonAsync(endpoint, data);
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return await response.Content.ReadFromJsonAsync<TResponse>();
+            var response = await _httpClient.PostAsJsonAsync(endpoint, data);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<TResponse>();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine(ex.Message);
         }
         return null;
     }

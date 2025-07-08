@@ -1,5 +1,5 @@
 @using CAO.Shared.Dtos;
-@inject BlogService BlogService;
+@inject BlogService blogService;
 
 @if (loading)
 {
@@ -44,7 +44,7 @@ else
     List<BlogMetadataResponse>? recommendBlogs;
     protected override async Task OnInitializedAsync()
     {
-        recommendBlogs = (await BlogService.GetRecommendedBlogsAsync())
+        recommendBlogs = (await blogService.GetRecommendedBlogsAsync())
             ?.OrderByDescending(blog => (blog.IsSticky, blog.CreatedAt)).ToList();
         loading = false;
     }
