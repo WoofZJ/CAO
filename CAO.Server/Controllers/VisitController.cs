@@ -35,7 +35,7 @@ public class VisitController(CaoDbContext dbContext) : ControllerBase
         await _dbContext.Visits.AddAsync(visit);
         await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        return await GetVisitAsync(new VisitGetRequest(request.Path));
     }
 
     [HttpPost("get")]
