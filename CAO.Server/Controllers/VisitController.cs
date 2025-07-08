@@ -19,17 +19,40 @@ public class VisitController(CaoDbContext dbContext) : ControllerBase
             return BadRequest("Visit record request cannot be null.");
         }
 
+        int? visitorInfoId = await _dbContext.VisitorInfos
+            .FirstOrDefaultAsync(v => v.SessionId == request.SessionId)
+            .ContinueWith(t => t.Result?.Id);
+        
+        if (visitorInfoId is null)
+        {
+            var visitorInfo = new VisitorInfo
+            {
+                VisitorId = request.VisitorId,
+                SessionId = request.SessionId,
+                UserAgent = request.UserAgent,
+                IpAddress = GetClientIpAddress()
+            };
+            await _dbContext.VisitorInfos.AddAsync(visitorInfo);
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            finally
+            {
+                // finally is in case of duplicate session
+                visitorInfoId = await _dbContext.VisitorInfos
+                    .FirstOrDefaultAsync(v => v.VisitorId == request.VisitorId && v.SessionId == request.SessionId)
+                    .ContinueWith(t => t.Result?.Id);
+            }
+        }
+
         var visit = new Visit
         {
-            IpAddress = GetClientIpAddress(),
-            UserAgent = request.UserAgent,
-            Origin = request.Origin,
             Path = request.Path,
             Query = request.Query,
             Referer = request.Referer,
             VisitAt = DateTime.UtcNow,
-            VisitorId = request.VisitorId,
-            SessionId = request.SessionId
+            VisitorInfoId = visitorInfoId.Value
         };
 
         await _dbContext.Visits.AddAsync(visit);
@@ -51,10 +74,12 @@ public class VisitController(CaoDbContext dbContext) : ControllerBase
                         v.VisitAt.Year == DateTime.UtcNow.Year);
         int pageVisits = await _dbContext.Visits.CountAsync(v => v.Path == request.Path);
         int siteVisits = await _dbContext.Visits.CountAsync();
-        int visitors = await _dbContext.Visits.Select(v => v.VisitorId).Distinct().CountAsync();
+        int visitors = await _dbContext.VisitorInfos.Select(v => v.VisitorId).Distinct().CountAsync();
         int monthlyPageVisits = await monthlyVisits.CountAsync(v => v.Path == request.Path);
         int monthlySiteVisits = await monthlyVisits.CountAsync();
-        int monthlyVisitors = await monthlyVisits.Select(v => v.VisitorId).Distinct().CountAsync();
+        int monthlyVisitors = await _dbContext.VisitorInfos
+            .Where(v => monthlyVisits.Any(mv => mv.VisitorInfoId == v.Id))
+            .Select(v => v.VisitorId).Distinct().CountAsync();
 
         VisitGetResponse response = new
         (
