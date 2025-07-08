@@ -1,17 +1,21 @@
+@using CAO.Shared.Dtos;
+@inject NavigationManager navigationManager;
+@inject VisitService visitService;
+
 <div class="stats stashadow border-1 py-1 bg-base-300 border-none items-center">
-    @foreach (var item in visitStats)
+    @for (int i = 0; i < 3; ++i)
     {
         <div class="stat px-4 py-0">
-            <div class="stat-title">@item.Name</div>
+            <div class="stat-title">@names[i]</div>
             <div class="stat-value text-2xl">
-                <span class="@(item.Total == null ? " text-error" : "")">
-                    @FormatNumber(item.Total)
+                <span class="@(totals[i] == null ? " text-error" : "")">
+                    @FormatNumber(totals[i])
                 </span>
             </div>
             <div class=" stat-desc">
                 本月:
-                <span class="@("font-semibold " + (item.Monthly == null ? " text-error" : ""))">
-                    @FormatNumber(item.Monthly)
+                <span class="@("font-semibold " + (monthlys[i] == null ? " text-error" : ""))">
+                    @FormatNumber(monthlys[i])
                 </span>
             </div>
         </div>
@@ -19,14 +23,10 @@
 </div>
 
 @code {
-    record VisitStatItem(string Name, int? Total = null, int? Monthly = null);
 
-    VisitStatItem[] visitStats =
-    [
-        new ("本页访问量"),
-        new ("本站访问量"),
-        new ("本站访客数"),
-    ];
+    string[] names = ["本页访问量", "本站访问量", "本站访客数"];
+    int?[] totals = [null, null, null];
+    int?[] monthlys = [null, null, null];
 
     string FormatNumber(int? number) => number switch
     {
@@ -40,4 +40,33 @@
         (< 1_000_000_000) => $"{number / 1_000_000.0: 0}M",
         _ => "1B+"
     };
+
+    protected override async Task OnInitializedAsync()
+    {
+        navigationManager.LocationChanged += async (sender, args) => await update();
+        await update();
+    }
+
+    void clearStats()
+    {
+        totals = [null, null, null];
+        monthlys = [null, null, null];
+    }
+
+    async Task update()
+    {
+        clearStats();
+        StateHasChanged();
+        VisitGetResponse? response = await visitService.RecordVisitAsync();
+        if (response != null)
+        {
+            totals = [response.PageVisits, response.SiteVisits, response.Visitors];
+            monthlys = [response.MonthlyPageVisits, response.MonthlySiteVisits, response.MonthlyVisitors];
+        }
+        else
+        {
+            clearStats();
+        }
+        StateHasChanged();
+    }
 }
