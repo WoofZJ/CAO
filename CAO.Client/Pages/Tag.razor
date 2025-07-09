@@ -119,12 +119,12 @@ else
         </div>
         <div class="timeline-end timeline-box flex flex-col text-base ml-2">
             <div class="flex flex-row items-center gap-x-3 flex-wrap">
-                <DateTimeWidget utcDatetime="@DateTime.UtcNow" showTime="false" />
+                <DateTimeWidget utcDatetime="@tagList![index-1].UpdatedAt" showTime="false" />
             </div>
-            <a href="@($"/blog/")" class="link-hover">
+            <a href="@($"/blog/{tagList[index-1].Slug}")" class="link-hover">
                 <h2 class="text-xl font-bold">
                     <span class="inline">
-                        Title
+                        @tagList[index-1].Title
                     </span><span class="inline-block align-middle ml-1">
                         <Icon name="external-link" class="w-5" />
                     </span>
