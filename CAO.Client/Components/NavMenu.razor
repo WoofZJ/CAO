@@ -9,7 +9,7 @@
             <NavLink href="@item.Url"
                      class="text-base"
                      ActiveClass="text-error"
-                     Match="NavLinkMatch.All"
+                     Match=@(item.Url == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)
             >
                 <Icon name="@item.Icon" class="w-5"/>
                 @item.Name
