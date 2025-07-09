@@ -45,7 +45,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         recommendBlogs = (await blogService.GetRecommendedBlogsAsync())
-            ?.OrderByDescending(blog => (blog.IsSticky, blog.CreatedAt)).ToList();
+            ?.OrderByDescending(blog => (blog.IsSticky, blog.UpdatedAt)).ToList();
         loading = false;
     }
 }
