@@ -1,0 +1,105 @@
+@page "/archive"
+@using CAO.Shared.Dtos
+@inject ArchiveService archiveService
+
+<PageTitle>CodeArt.Online - 归档</PageTitle>
+
+@if (loading)
+{
+    <Loading message="正在加载归档列表..." />
+}
+else if(archiveGroup is null)
+{
+    <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
+
+}
+else if (archiveGroup.Count() == 0)
+{
+    <Alert type="info" message="暂时还没有博客，过几天再来看看吧 >-<" />
+}
+else
+{
+    <div class="flex flex-col gap-4">
+        @foreach (var group in archiveGroup)
+        {
+            var monthlyGroup = group
+                .GroupBy(a => a.CreatedAt.Month)
+                .OrderByDescending(g => g.Key)
+                .ToList();
+            <Collection
+                icon="calendar-heart"
+                name=@($"{group.Key}年")
+                displayCount="@group.Count()"
+                TotalCount="@monthlyGroup.Count()"
+                pageSize="@group.Count()"
+                unit="篇文章"
+                elementFactory="archiveItemFactory(monthlyGroup)"
+                class="timeline timeline-vertical timeline-compact py-4 px-8"
+            />
+        }
+    </div>
+}
+
+@code {
+    bool loading;
+    List<IGrouping<int, ArchiveResponse>>? archiveGroup;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        var archiveList = await archiveService.GetArchiveListAsync();
+        if (archiveList is not null)
+        {
+            archiveGroup = archiveList
+                .GroupBy(a => a.CreatedAt.Year)
+                .OrderByDescending(g => g.Key)
+                .ToList();
+            Console.WriteLine($"Archive count: {archiveGroup.Count}");
+            for (int i = 0; i < archiveGroup.Count; i++)
+            {
+                Console.WriteLine($"Year: {archiveGroup[i].Key}, Month Count: {archiveGroup[i].Count()}");
+            }
+        }
+        loading = false;
+    }
+
+    Func<List<IGrouping<int, ArchiveResponse>>,
+        Func<int, int, int, RenderFragment>> archiveItemFactory =>
+            (monthlyBlogs) =>
+                (index, pageSize, totalCount) =>
+                    @<li>
+                    @if (index % pageSize != 1 && totalCount > 1)
+                    {
+                        <hr />
+                    }
+                    <div class="timeline-middle z-10">
+                        <div class="bg-base-200 w-14 text-center font-bold border-base-300 border-2 py-1 rounded-xl">
+                            @(monthlyBlogs[index-1].Key)月
+                        </div>
+                    </div>
+                    <ol class="timeline-end timeline-box text-base ml-2">
+                        @foreach (var (id, blog) in monthlyBlogs[index-1]
+                            .OrderByDescending(x => x.CreatedAt).Index())
+                        {
+                            <li class="flex flex-row items-center gap-2">
+                                <div class="w-12 px-0 border-base-300 text-center text-sm bg-base-200 border-2 rounded-xl">
+                                    @(blog.CreatedAt.Day)日
+                                </div>
+                                <a href="@($"/blog/{blog.Slug}")" class="link-hover">
+                                    <h2 class="text-xl font-bold">
+                                        <span class="inline">
+                                            @blog.Title
+                                        </span><span class="inline-block align-middle ml-1">
+                                            <Icon name="external-link" class="w-5" />
+                                        </span>
+                                    </h2>
+                                </a>
+                            </li>
+                        }
+                    </ol>
+                    @if (index < pageSize && index < totalCount)
+                    {
+                        <hr />
+                    }
+                </li>;
+}
