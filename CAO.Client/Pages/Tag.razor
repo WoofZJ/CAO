@@ -1,0 +1,139 @@
+@page "/tag"
+@using CAO.Shared.Dtos
+@inject TagService tagService
+
+<PageTitle>CodeArt.Online - 标签</PageTitle>
+
+@if (loading)
+{
+    <Loading message="正在加载标签列表..." />
+}
+else if(tagCountList is null)
+{
+    <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
+
+}
+else if (tagCountList.Count == 0)
+{
+    <Alert type="info" message="暂时还没有标签，过几天再来看看吧 >-<" />
+}
+else
+{
+    <div class="flex flex-col gap-6">
+        <Collection
+            icon="tags"
+            name="标签"
+            totalCount="@tagCountList.Count"
+            pageSize="@tagCountList.Count"
+            unit="个"
+            elementFactory="tagCountFactory"
+            class="flex flex-row flex-wrap items-center justify-center gap-2 py-4"
+        />
+        @if (!string.IsNullOrEmpty(TagName))
+        {
+            if (loadingList)
+            {
+                <Loading message=@($"正在加载标签「{TagName}」对应的博客...") />
+            }
+            else if (tagList is null)
+            {
+                <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
+            }
+            else if (tagList.Count == 0)
+            {
+                <Alert type="info" message=@($"没有「{TagName}」这个标签呢！>-<") />
+            }
+            else
+            {
+                <Collection
+                    icon="tag"
+                    name="@TagName"
+                    totalCount="@tagList.Count"
+                    pageSize="@tagList.Count"
+                    currentPage="1"
+                    unit="篇文章"
+                    elementFactory="tagListItemFactory"
+                    class="timeline timeline-vertical timeline-compact py-4 px-8"
+                />
+            }
+        }
+    </div>
+}
+
+
+@code {
+    [SupplyParameterFromQuery(Name = "tag")]
+    public string? TagName { get; set; }
+
+    bool loading;
+    bool loadingList;
+    List<TagCountResponse>? tagCountList;
+    List<TagItemResponse>? tagList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        tagCountList = await tagService.GetTagCountListAsync();
+        loading = false;
+        if (tagCountList is not null && !string.IsNullOrEmpty(TagName))
+        {
+            await updateTag(TagName, true);
+        }
+    }
+
+    Func<int, int, int, RenderFragment> tagCountFactory =>
+        (index, pageSize, totalCount) =>
+        @<button class=@($"btn text-base {(tagCountList![index-1].Tag == TagName ? "border-error text-error" : "")}")
+            onclick=@(async () => await updateTag(tagCountList[index-1].Tag))>
+            @tagCountList[index-1].Tag
+            <div class="badge badge-lg text-inherit">
+                @tagCountList[index-1].Count
+            </div>
+        </button>;
+
+    async Task updateTag(string tag, bool init=false)
+    {
+        if (tag != TagName || init)
+        {
+            tagList = null;
+            loadingList = true;
+            StateHasChanged();
+            TagName = tag;
+            tagList = await tagService.GetTagListAsync(tag);
+            loadingList = false;
+            StateHasChanged();
+        }
+    }
+
+    Func<int, int, int, RenderFragment> tagListItemFactory =>
+        (index, pageSize, totalCount) =>
+        @<li>
+        @if (pageSize > 1 && index % pageSize != 1)
+        {
+            <hr />
+        }
+        <div class="timeline-middle w-10 z-10">
+            <div class="bg-base-200 w-full border-base-300 border-2 text-center py-1 rounded-xl">
+                @(index)
+            </div>
+        </div>
+        <div class="timeline-end timeline-box flex flex-col text-base ml-2">
+            <div class="flex flex-row items-center gap-x-3 flex-wrap">
+                <DateTimeWidget utcDatetime="@DateTime.UtcNow" showTime="false" />
+            </div>
+            <a href="@($"/blog/")" class="link-hover">
+                <h2 class="text-xl font-bold">
+                    <span class="inline">
+                        Title
+                    </span><span class="inline-block align-middle ml-1">
+                        <Icon name="external-link" class="w-5" />
+                    </span>
+                </h2>
+            </a>
+        </div>
+        @if (index % pageSize != 0 && index != totalCount)
+        {
+            <hr />
+        }
+    </li>;
+}
