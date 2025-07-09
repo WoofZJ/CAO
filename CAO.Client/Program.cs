@@ -22,5 +22,6 @@ builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<StorageService>();
 builder.Services.AddScoped<VisitService>();
+builder.Services.AddScoped<TagService>();
 
 await builder.Build().RunAsync();
