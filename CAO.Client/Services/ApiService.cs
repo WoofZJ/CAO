@@ -58,4 +58,19 @@ public class ApiService(HttpClient httpClient, IMemoryCache cache)
         }
         return null;
     }
+
+    public async Task<bool> PostAsync<TRequest>(string endpoint, TRequest data)
+        where TRequest : class
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(endpoint, data);
+            return response.IsSuccessStatusCode;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return false;
+    }
 }

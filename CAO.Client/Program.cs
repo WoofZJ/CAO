@@ -24,5 +24,6 @@ builder.Services.AddScoped<StorageService>();
 builder.Services.AddScoped<VisitService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<ArchiveService>();
+builder.Services.AddScoped<MessageService>();
 
 await builder.Build().RunAsync();
