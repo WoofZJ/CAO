@@ -8,4 +8,5 @@ public class CaoDbContext(DbContextOptions<CaoDbContext> options)
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Visit> Visits { get; set; }
     public DbSet<VisitorInfo> VisitorInfos { get; set; }
+    public DbSet<Message> Messages { get; set; }
 }
