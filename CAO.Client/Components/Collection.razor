@@ -1,12 +1,17 @@
 <div class="rounded-field bg-base-100 border-base-300 border overflow-hidden">
     <div class="rounded-t-field py-4 font-semibold text-xl bg-base-200 px-4">
         <div class="flex items-center justify-between">
-            <span class="flex flex-row items-center gap-1">
+            <span class="flex flex-row items-center gap-1 flex-wrap">
                 <Icon name="@Icon" class="w-6" />
-                @Name
-                - 共
-                @DisplayCount
-                @Unit
+                <span>
+                    @Name
+                </span>
+                <span>
+                    (
+                    @DisplayCount
+                    @Unit
+                    )
+                </span>
             </span>
             @if (TotalCount > PageSize)
             {
