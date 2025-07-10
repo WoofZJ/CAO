@@ -1,0 +1,130 @@
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime jsRuntime
+@inject MessageService messageService;
+
+
+<EditForm model="formModel" OnValidSubmit="handleValidSubmit" OnInvalidSubmit="() => submitStatus = SubmitStatus.None"
+    class="flex flex-col gap-y-2 bg-base-200 py-4 px-4 rounded-2xl">
+    <DataAnnotationsValidator />
+    <div class="flex flex-row flex-wrap justify-end items-center gap-x-4 px-4 gap-y-2">
+        <button type="button" class="avatar hover:cursor-pointer" onclick="openModal()">
+            <div class="w-16 h-16 rounded-full border-neutral-300 border-2">
+                <img src="@($"/images/avatars/{selectedAvatar}.png")" />
+            </div>
+        </button>
+        <div class="grow flex flex-col gap-1">
+            <InputText @bind-Value="formModel.Nickname" 
+                      placeholder="昵称（选填）"
+                      class="input h-7" 
+                      maxlength="20" />
+            <InputText @bind-Value="formModel.Email" 
+                      placeholder="邮箱（选填）"
+                      class="input h-7" 
+                      maxlength="40" />
+        </div>
+        <button type="submit" class="btn btn-primary">提交留言</button>
+    </div>
+    <div>
+        <InputTextArea @bind-Value="formModel.Message"
+                      placeholder="留下你想说的话吧 ^-^"
+                      class="textarea w-full min-h-32"
+                      maxlength="1024" />
+        <ValidationMessage class="text-sm text-error px-2 mt-2"
+            For="@(() => formModel.Message)" />
+    </div>
+    <dialog id="selectAvatarModal" class="modal">
+        <div class="modal-box">
+            <h3 class="text-lg font-bold">选择头像</h3>
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <div class="max-h-88 overflow-y-auto">
+                <ul class="flex flex-row flex-wrap gap-2 justify-around">
+                    @for (int i = 0; i < 1; ++i)
+                    {
+                        int avatarIndex = i;
+                        <button type="button" class="avatar hover:cursor-pointer"
+                            onclick="@(async () => await SelectAvatarAsync(avatarIndex))">
+                            <div class="w-16 h-16 rounded-full border-2 border-base-300">
+                                <img src="@($"/images/avatars/{i}.png")" />
+                            </div>
+                        </button>
+                    }
+                </ul>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+    @switch (submitStatus)
+    {
+        case SubmitStatus.Submitting:
+            <Loading Message="提交中..." />
+            break;
+        case SubmitStatus.Success:
+            <Alert Type="success" Message="留言提交成功！" />
+            break;
+        case SubmitStatus.Failed:
+            <Alert Type="error" Message="服务器暂不可用，过会再来看看吧 ;-;" />
+            break;
+    }
+</EditForm>
+
+<script>
+    function closeModal() {
+        document.getElementById('selectAvatarModal').close();
+    }
+    function openModal() {
+        document.getElementById('selectAvatarModal').showModal();
+    }
+</script>
+
+@code {
+    public class FormModel
+    {
+        public string Nickname { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "留言内容不能为空")]
+        [StringLength(500, ErrorMessage = "留言内容不能超过500个字符")]
+        public string Message { get; set; } = string.Empty;
+    }
+    FormModel formModel = new FormModel();
+    int selectedAvatar = 0;
+    enum SubmitStatus
+    {
+        None,
+        Submitting,
+        Success,
+        Failed
+    }
+    SubmitStatus submitStatus = SubmitStatus.None;
+
+    async Task handleValidSubmit()
+    {
+        submitStatus = SubmitStatus.Submitting;
+        StateHasChanged();
+        if (await messageService.AddMessageAsync(
+            formModel.Nickname,
+            formModel.Email,
+            formModel.Message,
+            selectedAvatar))
+        {
+            submitStatus = SubmitStatus.Success;
+            formModel.Message = string.Empty;
+        }
+        else
+        {
+            submitStatus = SubmitStatus.Failed;
+        }
+        StateHasChanged();
+    }
+
+    async Task SelectAvatarAsync(int avatarIndex)
+    {
+        selectedAvatar = avatarIndex;
+        StateHasChanged();
+        await jsRuntime.InvokeVoidAsync("closeModal");
+    }
+}
