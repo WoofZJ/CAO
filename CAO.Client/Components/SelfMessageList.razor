@@ -1,0 +1,96 @@
+@using CAO.Shared.Dtos;
+@inject MessageService messageService;
+
+@if (loading)
+{
+    <Loading Message="加载留言中..." />
+}
+else if (myMessages == null)
+{
+    <Alert Type="error" Message="服务器暂不可用，过会再来看看吧 ;-;" />
+}
+else if (!myMessages.Any())
+{
+    <Alert Type="info" Message="期待来自你的留言！>-<" />
+}
+else
+{
+    <div>
+        <div class="divider my-2">背景色代表留言状态</div>
+        <div class="flex flex-row items-center gap-2 justify-evenly">
+            <div class="badge text-base py-4 font-bold bg-red-500/60">
+                审核不通过
+            </div>
+            <div class="badge text-base py-4 font-bold bg-emerald-500/60">
+                审核通过
+            </div>
+            <div class="badge text-base py-4 font-bold bg-amber-500/60">
+                审核中
+            </div>
+        </div>
+        <div class="divider my-2"></div>
+        <Collection
+            icon="message-circle-user"
+            name="我的留言"
+            totalCount="@myMessages.Count"
+            displayCount="@myMessages.Count"
+            pageSize="10"
+            unit="条"
+            elementFactory="@selfMessageFactory"
+            class="px-2"
+        />
+    </div>
+}
+
+@code {
+    bool loading;
+    List<MessageGetResponse>? myMessages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        messageService.OnMessageAdded += onMessageAdded;
+        myMessages = (await messageService.GetSelfMessagesAsync())?
+            .OrderByDescending(m => m.CreatedAt).ToList();
+        loading = false;
+    }
+
+    void onMessageAdded(MessageGetResponse newMessage)
+    {
+        myMessages?.Insert(0, newMessage);
+        StateHasChanged();
+    }
+
+    string getBgColor(int status) =>
+        status switch
+        {
+            0 => "bg-amber-500/60",
+            1 => "bg-emerald-500/60",
+            _ => "bg-red-500/60",
+        };
+    Func<int, int, int, RenderFragment> selfMessageFactory =>
+        (index, pageSize, totalCount) =>
+            @<div class="chat mt-2 chat-start">
+                    <div class="chat-image avatar">
+                        <div class="w-16 rounded-full border-neutral-300 border-2">
+                            <img src="@($"/images/avatars/{myMessages![index-1].AvatarId}.png")" />
+                        </div>
+                    </div>
+                    <div class="chat-header">
+                        <span class="text-base font-semibold">
+                            @(string.IsNullOrEmpty(myMessages[index-1].Nickname) ? "匿名访客" : myMessages[index-1].Nickname)
+                        </span>
+                    </div>
+                    <div class="chat-bubble relative @getBgColor(myMessages[index-1].Status)">
+                        <p class="break-all">
+                            @myMessages[index-1].Content
+                        </p>
+                    </div>
+                    <div class="chat-footer opacity-50">
+                        <div class="text-xs">
+                            留言于
+                            @myMessages[index-1].CreatedAt.AddHours(8).ToString("yyyy-MM-dd HH:mm:ss")
+                        </div>
+                    </div>
+                </div>;
+}
