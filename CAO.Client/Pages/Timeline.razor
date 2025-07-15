@@ -1,0 +1,40 @@
+@using CAO.Shared.Dtos;
+
+@page "/timeline"
+@inject TimelineService timelineService
+
+<PageTitle>CodeArt.Online - 时光轴</PageTitle>
+
+@if (loading)
+{
+    <Loading message="正在加载网站时光轴..." />
+
+}
+else if (timelineList is null)
+{
+    <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
+}
+else
+{
+    <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical px-2">
+        @foreach (var (idx, item) in timelineList.Index())
+        {
+            <TimelineItem
+                index="@idx"
+                reverseIndex="@(timelineList.Count - idx - 1)"
+                item="@item"
+                />
+        }
+    </ul>
+}
+
+@code {
+    bool loading;
+    List<TimelineResponse>? timelineList;
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        timelineList = await timelineService.GetTimelineItemsAsync();
+        loading = false;
+    }
+}
