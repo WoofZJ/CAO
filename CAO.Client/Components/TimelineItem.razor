@@ -1,0 +1,77 @@
+@using CAO.Shared.Dtos;
+
+<li>
+    @if (Index != 0)
+    {
+        <hr class=@(ReverseIndex == 0 ? "" : "bg-primary") />
+    }
+    <div class="timeline-middle">
+        @if (ReverseIndex != 0)
+        {
+            <Icon name="circle-check-filled" class="w-5 text-primary" />
+        }
+        else
+        {
+            <Icon name="hammer" class="w-5" />
+        }
+    </div>
+    <div class=@($"mb-10 {(Index % 2 == 0 ? "timeline-start" : "timeline-end")} w-full")>
+        <Collection icon="git-commit" name="@Item.Version" totalCount="@Item.Commits.Count" unit="次提交" pageSize="10"
+            elementFactory="commitFactory" class="py-4 px-4 flex flex-col gap-2" />
+    </div>
+    @if (ReverseIndex != 0)
+    {
+        <hr class=@(ReverseIndex == 1 ? "": "bg-primary") />
+    }
+</li>
+
+@code {
+    [Parameter]
+    public int Index { get; set; } = 0;
+    [Parameter]
+    public int ReverseIndex { get; set; } = 0;
+    [Parameter]
+    public TimelineResponse Item { get; set; } = null!;
+
+    Func<int, int, int, RenderFragment> commitFactory =>
+    (index, pageSize, totalCount) =>
+    @<div class="flex flex-row items-center gap-2">
+        <span class="w-10 badge badge-ghost font-bold">
+            #@index
+        </span>
+        <div class="flex flex-col">
+            <div class="flex flex-row flex-wrap gap-1">
+                <DateTimeWidget utcDateTime="@Item.Commits[index - 1].Date.ToUniversalTime()" />
+                <span class="badge badge-outline text-info gap-1">
+                    <span class="font-bold">
+                        @Item.Commits[index - 1].FilesChanged
+                    </span>
+                    文件
+                </span>
+                @if (Item.Commits[index - 1].Insertions > 0)
+                {
+                    <span class="badge badge-outline text-success gap-1">
+                        <span class="font-bold">
+                            +@Item.Commits[index - 1].Insertions
+                        </span>
+                        行
+                    </span>
+                }
+                @if (Item.Commits[index - 1].Deletions > 0)
+                {
+                    <span class="badge badge-outline text-error gap-1">
+                        <span class="font-bold">
+                            -@Item.Commits[index - 1].Deletions
+                        </span>
+                        行
+                    </span>
+                }
+            </div>
+            <p>
+                @Item.Commits[index - 1].Subject
+                :
+                @Item.Commits[index - 1].Message
+            </p>
+        </div>
+    </div>;
+}
