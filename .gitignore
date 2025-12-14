@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 
 # css output
 CAO.Client/wwwroot/css/app.css
+
+*.db
+*.db-shm
+*.db-wal

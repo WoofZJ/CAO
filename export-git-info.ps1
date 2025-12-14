@@ -3,6 +3,8 @@ param(
     [string]$Branch = "main"
 )
 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 Write-Host "Exporting Git commit records..." -ForegroundColor Green
 
 if (-not (Test-Path ".git")) {
