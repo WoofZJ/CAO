@@ -26,14 +26,18 @@ public class TagController(CaoDbContext dbContext) : ControllerBase
     [HttpGet("count")]
     public async Task<IActionResult> GetTagCountListAsync()
     {
-        var tagCounts = await _dbContext.Blogs
+        var allTags = await _dbContext.Blogs
             .Where(b => b.Status == BlogStatus.Published)
-            .SelectMany(b => b.Tags)
+            .Select(b => b.Tags)
+            .ToListAsync();
+
+        var tagCounts = allTags
+            .SelectMany(t => t)
             .GroupBy(tag => tag)
             .Select(g => new TagCountResponse(
                 g.Key,
                 g.Count()))
-            .ToListAsync();
+            .ToList();
         return Ok(tagCounts);
     }
 }

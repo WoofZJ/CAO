@@ -77,9 +77,11 @@ public class VisitController(CaoDbContext dbContext) : ControllerBase
         int visitors = await _dbContext.VisitorInfos.Select(v => v.VisitorId).Distinct().CountAsync();
         int monthlyPageVisits = await monthlyVisits.CountAsync(v => v.Path == request.Path);
         int monthlySiteVisits = await monthlyVisits.CountAsync();
-        int monthlyVisitors = await _dbContext.VisitorInfos
-            .Where(v => monthlyVisits.Any(mv => mv.VisitorInfoId == v.Id))
-            .Select(v => v.VisitorId).Distinct().CountAsync();
+        int monthlyVisitors = await (from v in monthlyVisits
+                                     join vi in _dbContext.VisitorInfos on v.VisitorInfoId equals vi.Id
+                                     select vi.VisitorId)
+                                     .Distinct()
+                                     .CountAsync();
 
         VisitGetResponse response = new
         (

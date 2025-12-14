@@ -32,7 +32,8 @@ else
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<CaoDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    opt.UseSqlite(builder.Configuration.GetConnectionString("CaoDatabase"))
+);
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

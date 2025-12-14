@@ -73,14 +73,16 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
         int monthlyUpdatedCount = await _dbContext.Blogs
             .CountAsync(b => b.Status == BlogStatus.Published && b.UpdatedAt.Month == DateTime.UtcNow.Month
                 && b.UpdatedAt.Year == DateTime.UtcNow.Year);
-        int tagCount = await _dbContext.Blogs.SelectMany(b => b.Tags)
-            .Distinct().CountAsync();
-        string mostUsedTag = await _dbContext.Blogs
-            .SelectMany(b => b.Tags)
+
+        var allTags = await _dbContext.Blogs.Select(b => b.Tags).ToListAsync();
+        var flatTags = allTags.SelectMany(t => t).ToList();
+
+        int tagCount = flatTags.Distinct().Count();
+        string mostUsedTag = flatTags
             .GroupBy(t => t)
             .OrderByDescending(g => g.Count())
             .Select(g => g.Key)
-            .FirstOrDefaultAsync() ?? string.Empty;
+            .FirstOrDefault() ?? string.Empty;
         int usedCount = await _dbContext.Blogs
             .CountAsync(b => b.Tags.Any(t => t == mostUsedTag));
         // TODO: Implement message model
