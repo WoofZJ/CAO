@@ -11,7 +11,7 @@ check_dotnet_or_install() {
     echo "❌ dotnet-cli not found, installing..."
     curl -sSL https://dot.net/v1/dotnet-install.sh > dotnet-install.sh
     chmod +x dotnet-install.sh
-    ./dotnet-install.sh -c 9.0 -InstallDir $HOME/.dotnet
+    ./dotnet-install.sh -c 10.0 -InstallDir $HOME/.dotnet
     rm ./dotnet-install.sh
 
     if [ -f "$HOME/.dotnet/dotnet" ]; then
