@@ -44,6 +44,12 @@ public class MessageController(CaoDbContext dbContext) : ControllerBase
     {
         var messages = await _dbContext.Messages
             .Where(m => m.Status == MessageStatus.Approved)
+            .Select(m => new MessageGetResponse(
+                m.Nickname,
+                m.Content,
+                m.AvatarId,
+                m.CreatedAt,
+                (int)m.Status))
             .ToListAsync();
 
         return Ok(messages);
