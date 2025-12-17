@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CAO.Admin/CAO.Admin.csproj" />
+  <Project Path="CAO.Client/CAO.Client.csproj" />
+  <Project Path="CAO.Server/CAO.Server.csproj" />
+  <Project Path="CAO.Shared/CAO.Shared.csproj" />
+</Solution>
