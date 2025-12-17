@@ -1,0 +1,32 @@
+@page "/login"
+@using CAO.Admin.Services
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<div>
+    <label class="form-label">Password</label>
+    <input type="password" @bind="password" />
+</div>
+<button @onclick="HandleLogin">Login</button>
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="text-danger mt-2 text-center">@error</div>
+}
+
+@code {
+    private string password = "";
+    private string error = "";
+
+    private async Task HandleLogin()
+    {
+        bool success = await AuthStateProvider.Login(password);
+        if (success)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            error = "Invalid password";
+        }
+    }
+}
