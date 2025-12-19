@@ -1,0 +1,76 @@
+@page "/login"
+@inject CustomAuthStateProvider AuthStateProvider
+
+<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4 mx-auto">
+    <legend class="fieldset-legend">登录</legend>
+
+    <label class="label">用户名</label>
+    <input type="text" class="input" @bind="username" />
+
+    <label class="label">密码</label>
+    <input type="password" class="input" @bind="password" />
+
+    <button class="btn btn-neutral mt-4"
+        disabled="@(submitStatus == SubmitStatus.Submitting || IsAlreadyLoggedIn)"
+        @onclick="HandleLogin">
+        登录
+    </button>
+
+    <div class="mt-4">
+        @switch (submitStatus)
+        {
+            case SubmitStatus.Submitting:
+                <Loading Message="登录中..." />
+                break;
+            case SubmitStatus.Failed:
+                <Alert Type="error" Message=@error />
+                break;
+        }
+        @if (IsAlreadyLoggedIn)
+        {
+            <Alert Type="success" Message="登录成功！" />
+        }
+    </div>
+</fieldset>
+
+@code {
+    private string password = "";
+    private string username = "";
+    private string error = "";
+
+    enum SubmitStatus
+    {
+        None,
+        Submitting,
+        Success,
+        Failed
+    }
+
+    private SubmitStatus submitStatus = SubmitStatus.None;
+    private bool IsAlreadyLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        AuthStateProvider.AuthenticationStateChanged += async _ =>
+        {
+            var newState = await AuthStateProvider.GetAuthenticationStateAsync();
+            IsAlreadyLoggedIn = newState.User.Identity?.IsAuthenticated == true;
+            StateHasChanged();
+        };
+        IsAlreadyLoggedIn = state.User.Identity?.IsAuthenticated == true;
+    }
+
+    private async Task HandleLogin()
+    {
+        submitStatus = SubmitStatus.Submitting;
+        StateHasChanged();
+        bool success = await AuthStateProvider.Login(password);
+        if (!success)
+        {
+            submitStatus = SubmitStatus.Failed;
+            error = "用户名或密码错误";
+            StateHasChanged();
+        }
+    }
+}
