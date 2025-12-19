@@ -1,5 +1,6 @@
 using CAO.Server.Models;
 using CAO.Shared.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -100,5 +101,28 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
         );
 
         return Ok(blogStats);
+    }
+
+    [HttpGet("list")]
+    [Authorize]
+    public async Task<IActionResult> GetBlogList()
+    {
+        var blogs = await _dbContext.Blogs
+            .Select(b => new BlogListItemDto
+            (
+                b.Id,
+                b.Title,
+                b.Slug,
+                b.Description,
+                b.ImageUrl,
+                b.Tags,
+                b.CreatedAt,
+                b.UpdatedAt,
+                (int)b.Status,
+                b.IsRecommended,
+                b.IsSticky
+            ))
+            .ToListAsync();
+        return Ok(blogs);
     }
 }
