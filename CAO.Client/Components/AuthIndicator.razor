@@ -1,0 +1,33 @@
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (isAuthenticated)
+{
+    <a class="btn btn-ghost px-2" href="/admin">
+        后台
+    </a>
+}
+else
+{
+    <a class="avatar" href="/login">
+        <div class="w-10 rounded">
+            <img src="/images/avatars/0.png" />
+        </div>
+    </a>
+}
+
+@code {
+    bool isAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += async _ => await UpdateAuthState();
+        await UpdateAuthState();
+    }
+
+    private async Task UpdateAuthState()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        StateHasChanged();
+    }
+}

@@ -1,13 +1,13 @@
 <header class="navbar bg-base-200 shadow-md rounded-b-2xl py-0 lg:px-4 sticky top-0 z-50">
     <div class="navbar-start">
         <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden px-2">
                 <Icon name="menu-2" class="w-6" />
             </div>
             <NavMenu isMobile="true" />
         </div>
-        <a class="btn btn-ghost" href="/">
-            <img src="/favicon.png" width="40" />
+        <a class="btn btn-ghost px-2" href="/">
+            <img src="/favicon.png" width="32" />
             <h2 class="text-xl">
                 CodeArt.Online
             </h2>
@@ -16,7 +16,8 @@
     <div class="navbar-center hidden lg:flex">
         <NavMenu isMobile="false" />
     </div>
-    <div class="navbar-end">
+    <div class="navbar-end flex gap-x-2">
         <ThemeSwitch />
+        <AuthIndicator />
     </div>
 </header>
