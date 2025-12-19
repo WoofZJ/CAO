@@ -1,0 +1,70 @@
+@using CAO.Shared.Dtos;
+
+<div
+    class="flex flex-col lg:flex-row items-center lg:items-stretch py-2 px-8 lg:px-4 gap-x-4">
+    <div class="flex flex-row lg:min-w-12 lg:flex-col items-center gap-y-1 gap-x-1">
+        <div class="text-2xl opacity-50 tabular-nums px-2">
+            @Blog.Id.ToString("00")
+        </div>
+        @switch (Blog.Status)
+        {
+            case 0:
+                <span class="badge text-sm font-semibold bg-amber-500/60 lg:px-0 lg:w-full">
+                    草稿
+                </span>
+                break;
+            case 1:
+                <span class="badge text-sm font-semibold bg-emerald-500/60 lg:px-0 lg:w-full">
+                    发布
+                </span>
+                break;
+            case 2:
+                <span class="badge text-sm font-semibold bg-red-500/60 lg:px-0 lg:w-full">
+                    归档
+                </span>
+                break;
+        }
+    </div>
+    <div class="w-full lg:w-auto flex flex-col grow gap-1">
+        <h2 class="text-2xl text-center lg:text-start font-bold">
+            @Blog.Title
+        </h2>
+        <div class="flex flex-row gap-x-1 flex-wrap justify-center lg:justify-start">
+            <DateTimeWidget utcDateTime="@Blog.UpdatedAt" />
+            <TagsWidget tags="@Blog.Tags" />
+            @if (Blog.IsSticky)
+            {
+                <span class="badge badge-accent text-sm font-semibold">
+                    置顶
+                </span>
+            }
+            @if (Blog.IsRecommended)
+            {
+                <span class="badge badge-accent text-sm font-semibold">
+                    推荐
+                </span>
+            }
+        </div>
+        <p class="text-base grow">
+            @Blog.Description
+        </p>
+        <div class="flex flex-row gap-x-2 self-start" href="/">
+            <a class="btn btn-ghost hover:text-error" href="admin/preview?slug=@Blog.Slug">
+                预览
+            </a>
+            <a class="btn btn-ghost hover:text-error" href="admin/edit/id=@Blog.Id">
+                编辑
+            </a>
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(Blog.ImageUrl))
+    {
+        <img class="w-full mt-2 lg:my-auto lg:w-5/12 h-56 object-cover rounded-xl"
+            src="@Blog.ImageUrl" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public BlogListItemDto Blog { get; set; } = default!;
+}

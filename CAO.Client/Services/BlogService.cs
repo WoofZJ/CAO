@@ -21,4 +21,7 @@ public class BlogService(ApiService apiService)
     public async Task<BlogStatsResponse?> GetBlogStatsAsync() =>
         await _apiService.GetWithCacheAsync<BlogStatsResponse>(
             "blog/stats", "blog_stats", TimeSpan.FromMinutes(15));
+        
+    public async Task<List<BlogListItemDto>?> GetBlogListAsync() =>
+        await _apiService.GetAsync<List<BlogListItemDto>>("blog/list");
 }
