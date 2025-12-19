@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.Authorization;
 using CAO.Client;
 using CAO.Client.Services;
 
@@ -17,7 +18,11 @@ builder.Services.AddScoped(sp =>
         BaseAddress = new Uri(apiBaseAddress)
     };
 });
+
+builder.Services.AddAuthorizationCore();
 builder.Services.AddMemoryCache();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped(sp => (CustomAuthStateProvider)sp.GetRequiredService<AuthenticationStateProvider>());
 builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<StorageService>();
