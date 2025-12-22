@@ -86,8 +86,8 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
             .FirstOrDefault() ?? string.Empty;
         int usedCount = await _dbContext.Blogs
             .CountAsync(b => b.Tags.Any(t => t == mostUsedTag));
-        // TODO: Implement message model
-        int messageCount = 0;
+
+        int messageCount = await _dbContext.Messages.CountAsync(m => m.Status == MessageStatus.Approved);
 
         var blogStats = new BlogStatsResponse
         (
