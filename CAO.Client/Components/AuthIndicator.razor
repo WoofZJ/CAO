@@ -1,10 +1,22 @@
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
 
 @if (isAuthenticated)
 {
-    <a class="btn btn-ghost px-2" href="/admin">
-        后台
-    </a>
+    @if (navigationManager.Uri.EndsWith("/admin") || navigationManager.Uri.EndsWith("/admin/"))
+    {
+        <button class="btn btn-ghost px-2"
+            @onclick="async () => await ((CustomAuthStateProvider)authenticationStateProvider).Logout()"
+        >
+            注销
+        </button>
+    }
+    else
+    {
+        <a class="btn btn-ghost px-2" href="/admin">
+            后台
+        </a>
+    }
 }
 else
 {
@@ -20,13 +32,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        AuthenticationStateProvider.AuthenticationStateChanged += async _ => await UpdateAuthState();
+        authenticationStateProvider.AuthenticationStateChanged += async _ => await UpdateAuthState();
         await UpdateAuthState();
     }
 
     private async Task UpdateAuthState()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
         StateHasChanged();
     }
