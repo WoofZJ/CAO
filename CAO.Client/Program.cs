@@ -31,5 +31,6 @@ builder.Services.AddScoped<TagService>();
 builder.Services.AddScoped<ArchiveService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<TimelineService>();
+builder.Services.AddScoped<AdminService>();
 
 await builder.Build().RunAsync();
