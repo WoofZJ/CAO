@@ -33,7 +33,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         authenticationStateProvider.AuthenticationStateChanged += async _ => await UpdateAuthState();
+        navigationManager.LocationChanged += OnLocationChanged;
         await UpdateAuthState();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
     }
 
     private async Task UpdateAuthState()
