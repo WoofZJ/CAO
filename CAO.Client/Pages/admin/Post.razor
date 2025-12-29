@@ -1,0 +1,51 @@
+@page "/admin/post"
+@attribute [Authorize]
+@inject BlogService blogService;
+
+<div class="card bg-primary text-primary-content w-96">
+    <div class="card-body">
+        <h2 class="card-title">Card title!</h2>
+        <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+        <div class="card-actions justify-end">
+            <button class="btn">Buy Now</button>
+        </div>
+    </div>
+</div>
+
+@if (loading)
+{
+    <Loading message="正在加载博客文章..." />
+}
+else if (blogs is null)
+{
+    <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
+
+}
+else if (blogs.Count == 0)
+{
+    <Alert type="info" message="暂时还没有博客文章，要不写一篇？>-<" />
+}
+else
+{
+    <Collection icon="article" name="博客文章" totalCount="@blogs.Count" pageSize="5" unit="篇" elementFactory="blogFactory" />
+}
+
+@code {
+    Func<int, int, int, RenderFragment> blogFactory =>
+        (index, pageSize, totalCount) =>
+        @<div>
+            <BlogListItem Blog="blogs![index-1]" />
+            @if (index % pageSize != 0 && index != totalCount)
+            {
+                    <div class="divider m-0"></div>
+            }
+        </div>;
+    bool loading = true;
+    List<BlogListItemDto>? blogs;
+    protected override async Task OnInitializedAsync()
+    {
+        blogs = (await blogService.GetBlogListAsync())
+        ?.OrderByDescending(blog => -blog.Id).ToList();
+        loading = false;
+    }
+}

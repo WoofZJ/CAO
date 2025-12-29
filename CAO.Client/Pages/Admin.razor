@@ -1,65 +1,76 @@
 @page "/admin"
 @attribute [Authorize]
-@using CAO.Shared.Dtos;
+@inject AdminService adminService;
 
-@inject AuthenticationStateProvider AuthProvider
-@inject BlogService blogService;
+<PageTitle>CodeArt.Online - 后台</PageTitle>
 
 <div class="flex flex-col gap-y-4">
 
-    <h1>后台管理</h1>
-
-    <button class="btn btn-ghost self-start" @onclick="Logout">
-        Logout
-    </button>
-
-    @if (loading)
-    {
-        <Loading message="正在加载推荐文章..." />
-    }
-    else if (blogs is null)
-    {
-        <Alert type="error" message="服务器暂不可用，过会再来看看吧 ;-;" />
-
-    }
-    else if (blogs.Count == 0)
-    {
-        <Alert type="info" message="暂时还没有博客文章，要不写一篇？>-<" />
-    }
-    else
-    {
-        <Collection icon="article" name="博客文章" totalCount="@blogs.Count" pageSize="5" unit="篇"
-            elementFactory="blogFactory" />
-    }
+    <div class="flex flex-row flex-wrap justify-center gap-4">
+        <div class="card bg-base-200 min-w-96">
+            <div class="card-body">
+                <h2 class="card-title">文章 ( @ToString(statistics?.TotalPosts) 篇 )</h2>
+                <div class="stats bg-base-300">
+                    <div class="stat">
+                        <div class="stat-title">发布</div>
+                        <div class="stat-value text-success">@ToString(statistics?.PublishedPosts)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">草稿</div>
+                        <div class="stat-value text-warning">@ToString(statistics?.DraftPosts)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">归档</div>
+                        <div class="stat-value text-error">@ToString(statistics?.ArchivedPosts)</div>
+                    </div>
+                </div>
+                <div class="card-actions justify-end">
+                    <a href="/admin/post" class="btn">前往</a>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-base-200 min-w-96">
+            <div class="card-body">
+                <h2 class="card-title">留言 ( @ToString(statistics?.TotalMessages) 条 )</h2>
+                <div class="stats bg-base-300">
+                    <div class="stat">
+                        <div class="stat-title">通过</div>
+                        <div class="stat-value text-success">@ToString(statistics?.ApprovedMessages)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">待审</div>
+                        <div class="stat-value text-warning">@ToString(statistics?.PendingMessages)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">拒绝</div>
+                        <div class="stat-value text-error">@ToString(statistics?.RejectedMessages)</div>
+                    </div>
+                </div>
+                <div class="card-actions justify-end">
+                    <a href="/admin/message" class="btn">前往</a>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-base-200 min-w-96">
+            <div class="card-body">
+                <h2 class="card-title">访客管理</h2>
+                <p></p>
+                <div class="card-actions justify-end">
+                    <a href="/admin/visitor" class="btn">前往</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
 @code {
-    Func<int, int, int, RenderFragment> blogFactory =>
-    (index, pageSize, totalCount) =>
-    @<div>
-        <BlogListItem Blog="blogs![index-1]" />
-        @if (index % pageSize != 0 && index != totalCount)
-        {
-                <div class="divider m-0"></div>
-        }
-    </div>;
+    private AdminStatisticsDto? statistics;
 
-bool loading = true;
-List<BlogListItemDto>? blogs;
-protected override async Task OnInitializedAsync()
-{
-blogs = (await blogService.GetBlogListAsync())
-?.OrderByDescending(blog => -blog.Id).ToList();
-loading = false;
-}
-}
-
-
-
-@code {
-    private async Task Logout()
+    protected override async Task OnInitializedAsync()
     {
-        await ((CustomAuthStateProvider)AuthProvider).Logout();
+        statistics = await adminService.GetAdminStatisticsAsync();
     }
+
+    string ToString(int? value) => value?.ToString() ?? "--";
 }
