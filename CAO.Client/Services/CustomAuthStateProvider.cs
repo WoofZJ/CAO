@@ -23,6 +23,13 @@ public class CustomAuthStateProvider(IJSRuntime jsRuntime, HttpClient httpClient
             _httpClient.DefaultRequestHeaders.Authorization = null;
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
+
+        if (IsTokenExpired(token))
+        {
+            await Logout();
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
+
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt")));
     }
@@ -49,6 +56,27 @@ public class CustomAuthStateProvider(IJSRuntime jsRuntime, HttpClient httpClient
         await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", TokenKey);
         _httpClient.DefaultRequestHeaders.Authorization = null;
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+
+    private static bool IsTokenExpired(string jwt)
+    {
+        try
+        {
+            var payload = jwt.Split('.')[1];
+            var jsonBytes = ParseBase64WithoutPadding(payload);
+            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+            if (keyValuePairs != null && keyValuePairs.TryGetValue("exp", out var exp))
+            {
+                var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp.ToString()));
+                return expTime <= DateTimeOffset.UtcNow;
+            }
+        }
+        catch
+        {
+            return true;
+        }
+        return true;
     }
 
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
