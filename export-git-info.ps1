@@ -1,5 +1,5 @@
 param(
-    [string]$OutputFile = "timeline.json",
+    [string]$OutputFile = "CAO.Client/wwwroot/timeline.json",
     [string]$Branch = "main"
 )
 

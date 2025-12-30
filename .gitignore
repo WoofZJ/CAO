@@ -487,6 +487,10 @@ $RECYCLE.BIN/
 CAO.Client/wwwroot/css/app.css
 CAO.Admin/wwwroot/css/app.css
 
+# SQLite database files
 *.db
 *.db-shm
 *.db-wal
+
+# timeline json
+CAO.Client/wwwroot/timeline.json
