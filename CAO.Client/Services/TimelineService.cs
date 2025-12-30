@@ -65,50 +65,55 @@ public class TimelineService(NavigationManager navigationManager)
         {
             BaseAddress = new Uri(_navigationManager.BaseUri)
         };
-        var timelineData = await client.GetFromJsonAsync<TimelineObj>("timeline.json");
-
-        if (timelineData is null) return null;
-
-        timelineData.Commits.Sort((a, b) => a.Date.CompareTo(b.Date));
-        timelineData.Tags.Sort((a, b) => a.Date.CompareTo(b.Date));
-
-        List<CommitDto> commits = [];
-        List<TimelineResponse> timelineList = [];
-        int tagIndex = 0;
-
-        foreach (var commit in timelineData.Commits)
+        try
         {
-            commits.Add(new CommitDto(
-                commit.Body,
-                commit.Message.Split(':')[0].Trim(),
-                commit.Stats.FilesChanged,
-                commit.Stats.Insertions,
-                commit.Stats.Deletions,
-                commit.Date
-            ));
+            var timelineData = await client.GetFromJsonAsync<TimelineObj>("timeline.json");
+            if (timelineData is null) return null;
+            timelineData.Commits.Sort((a, b) => a.Date.CompareTo(b.Date));
+            timelineData.Tags.Sort((a, b) => a.Date.CompareTo(b.Date));
 
-            if (tagIndex < timelineData.Tags.Count && commit.Hash == timelineData.Tags[tagIndex].Commit)
+            List<CommitDto> commits = [];
+            List<TimelineResponse> timelineList = [];
+            int tagIndex = 0;
+
+            foreach (var commit in timelineData.Commits)
+            {
+                commits.Add(new CommitDto(
+                    commit.Body,
+                    commit.Message.Split(':')[0].Trim(),
+                    commit.Stats.FilesChanged,
+                    commit.Stats.Insertions,
+                    commit.Stats.Deletions,
+                    commit.Date
+                ));
+
+                if (tagIndex < timelineData.Tags.Count && commit.Hash == timelineData.Tags[tagIndex].Commit)
+                {
+                    timelineList.Add(new TimelineResponse(
+                        timelineData.Tags[tagIndex].Name,
+                        timelineData.Tags[tagIndex].Body,
+                        timelineData.Tags[tagIndex].Date,
+                        commits
+                    ));
+                    commits = [];
+                    tagIndex++;
+                }
+            }
+
+            if (commits.Count > 0)
             {
                 timelineList.Add(new TimelineResponse(
-                    timelineData.Tags[tagIndex].Name,
-                    timelineData.Tags[tagIndex].Body,
-                    timelineData.Tags[tagIndex].Date,
+                    "构建中版本",
+                    "",
+                    DateTime.UtcNow,
                     commits
                 ));
-                commits = [];
-                tagIndex++;
             }
+            return timelineList;
         }
-
-        if (commits.Count > 0)
+        catch
         {
-            timelineList.Add(new TimelineResponse(
-                "构建中版本",
-                "",
-                DateTime.UtcNow,
-                commits
-            ));
+            return null;
         }
-        return timelineList;
     }
 }

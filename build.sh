@@ -17,6 +17,7 @@ check_dotnet_or_install() {
     if [ -f "$HOME/.dotnet/dotnet" ]; then
         echo "✅ dotnet installed successfully"
         export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+        export DOTNET_ROOT=$HOME/.dotnet
         $HOME/.dotnet/dotnet --list-sdks
     else
         echo "❌ dotnet installation failed"
@@ -60,7 +61,7 @@ main() {
     echo "CAO.Client built and published."
 
     echo "exporting git info..."
-    pwsh ./export-git-info.ps1
+    pwsh ./export-git-info.ps1 ./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json
     echo "git info exported."
 }
 
