@@ -47,9 +47,17 @@ install_pwsh() {
     fi
 }
 
+ensure_git_history() {
+    echo "ensuring git history..."
+    git fetch --unshallow 2>/dev/null || true
+    git fetch --all
+    git fetch --tags
+}
+
 main() {
     check_dotnet_or_install
     install_pwsh
+    ensure_git_history
 
     echo "installing npm packages..."
     cd ./CAO.Client
@@ -62,7 +70,7 @@ main() {
     echo "CAO.Client built and published."
 
     echo "exporting git info..."
-    pwsh ./export-git-info.ps1 -OutputFile "./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json"
+    pwsh ./export-git-info.ps1 -OutputFile "./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json" -Branch "HEAD"
     echo "git info exported."
 }
 
