@@ -25,8 +25,31 @@ check_dotnet_or_install() {
     fi
 }
 
+install_pwsh() {
+    if command -v pwsh &> /dev/null; then
+        echo "✅ pwsh found"
+        return 0
+    fi
+
+    echo "installing pwsh..."
+    mkdir -p $HOME/.powershell
+    wget -qO pwsh.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/powershell-7.4.6-linux-x64.tar.gz
+    tar -zxf pwsh.tar.gz -C $HOME/.powershell
+    chmod +x $HOME/.powershell/pwsh
+    rm pwsh.tar.gz
+    export PATH=$PATH:$HOME/.powershell
+    
+    if command -v pwsh &> /dev/null; then
+        echo "✅ pwsh installed successfully"
+    else
+        echo "❌ pwsh installation failed"
+        exit 1
+    fi
+}
+
 main() {
     check_dotnet_or_install
+    install_pwsh
 
     echo "installing npm packages..."
     cd ./CAO.Client
@@ -39,8 +62,7 @@ main() {
     echo "CAO.Client built and published."
 
     echo "exporting git info..."
-    chmod +x ./export-git-info.sh
-    ./export-git-info.sh "./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json"
+    pwsh ./export-git-info.ps1 -OutputFile "./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json"
     echo "git info exported."
 }
 
