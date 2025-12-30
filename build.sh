@@ -25,30 +25,8 @@ check_dotnet_or_install() {
     fi
 }
 
-check_pwsh_or_install() {
-    echo "checking pwsh environment..."
-    if command -v pwsh &> /dev/null; then
-        echo "✅ pwsh found"
-        return 0
-    fi
-
-    echo "❌ pwsh not found, installing..."
-
-    $HOME/.dotnet/dotnet tool install --global PowerShell
-
-    export PATH=$PATH:$HOME/.dotnet/tools
-
-    if command -v pwsh &> /dev/null; then
-        echo "✅ pwsh installed successfully"
-    else
-        echo "❌ pwsh installation failed"
-        exit 1
-    fi
-}
-
 main() {
     check_dotnet_or_install
-    check_pwsh_or_install
 
     echo "installing npm packages..."
     cd ./CAO.Client
@@ -61,7 +39,8 @@ main() {
     echo "CAO.Client built and published."
 
     echo "exporting git info..."
-    pwsh ./export-git-info.ps1 ./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json
+    chmod +x ./export-git-info.sh
+    ./export-git-info.sh "./CAO.Client/bin/Release/net10.0/publish/wwwroot/timeline.json"
     echo "git info exported."
 }
 
