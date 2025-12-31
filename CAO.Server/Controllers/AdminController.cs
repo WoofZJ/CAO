@@ -3,6 +3,7 @@ using CAO.Shared.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Markdig;
 
 namespace CAO.Server.Controllers;
 
@@ -109,10 +110,57 @@ public class AdminController(CaoDbContext dbContext) : ControllerBase
         }
         else
         {
+            blog.UpdatedAt = DateTime.UtcNow;
             _dbContext.Blogs.Update(blog);
         }
         await _dbContext.SaveChangesAsync();
         return Ok(new BlogEditMetadataResponseDto(
+            blog.Id,
+            true,
+            false
+        ));
+    }
+
+    [HttpGet("post/markdown/{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetBlogEditMarkdown(int id)
+    {
+        var blog = await _dbContext.Blogs.FindAsync(id);
+        if (blog == null)
+        {
+            return NotFound();
+        }
+
+        var markdownDto = new BlogEditMarkdownDto(
+            blog.Id,
+            blog.Markdown
+        );
+
+        return Ok(markdownDto);
+    }
+
+    [HttpPost("post/markdown")]
+    [Authorize]
+    public async Task<IActionResult> UpdateBlogEditMarkdown([FromBody] BlogEditMarkdownDto markdownDto)
+    {
+        var blog = await _dbContext.Blogs.FindAsync(markdownDto.Id);
+        if (blog == null)
+        {
+            return Ok(new BlogEditMarkdownResponseDto(
+                markdownDto.Id,
+                false,
+                true
+            ));
+        }
+
+        blog.Markdown = markdownDto.Markdown;
+        var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+        var result = Markdown.ToHtml(markdownDto.Markdown, pipeline);
+        blog.Html = result;
+        blog.UpdatedAt = DateTime.UtcNow;
+        _dbContext.Blogs.Update(blog);
+        await _dbContext.SaveChangesAsync();
+        return Ok(new BlogEditMarkdownResponseDto(
             blog.Id,
             true,
             false
