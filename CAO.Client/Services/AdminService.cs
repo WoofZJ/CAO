@@ -8,4 +8,10 @@ public class AdminService(ApiService apiService)
 
     public async Task<AdminStatisticsDto?> GetAdminStatisticsAsync() =>
         await _apiService.GetAsync<AdminStatisticsDto>("admin/stats");
+
+    public async Task<BlogEditMetadataDto?> GetBlogEditMetadataAsync(int id) =>
+        await _apiService.GetAsync<BlogEditMetadataDto>($"admin/post/metadata/{id}");
+
+    public async Task<BlogEditMetadataResponseDto?> UpdateBlogEditMetadataAsync(BlogEditMetadataDto metadataDto) =>
+        await _apiService.PostAsync<BlogEditMetadataDto, BlogEditMetadataResponseDto>("admin/post/metadata", metadataDto);
 }
