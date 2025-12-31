@@ -1,0 +1,23 @@
+@page "/admin/post/editor"
+@attribute [Authorize]
+
+<PageTitle>CodeArt.Online - 编辑文章</PageTitle>
+
+<div class="breadcrumbs text-sm">
+    <ul>
+        <li><a href="/admin">后台</a></li>
+        <li><a href="/admin/post">文章管理</a></li>
+        <li>编辑文章</li>
+    </ul>
+</div>
+
+
+<div class="flex flex-col gap-y-4">
+    <MetadataEditor @bind-Id="Id" />
+    <MarkdownEditor Id="@Id" />
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "id")]
+    public int Id { get; set; } = 0;
+}

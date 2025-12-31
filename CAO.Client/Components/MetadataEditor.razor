@@ -77,6 +77,10 @@ else
 @code {
     [Parameter]
     public int Id { get; set; }
+
+    [Parameter]
+    public EventCallback<int> IdChanged { get; set; }
+
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -161,6 +165,7 @@ else
             if (Id == 0)
             {
                 Id = response.Id;
+                await IdChanged.InvokeAsync(Id);
             }
         }
     }
