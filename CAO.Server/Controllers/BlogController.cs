@@ -15,8 +15,9 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
     [HttpGet("metadata/{slug}")]
     public async Task<IActionResult> GetBlogMetadata(string slug)
     {
+        bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
         var metadata = await _dbContext.Blogs
-            .Where(b => b.Slug == slug && b.Status == BlogStatus.Published)
+            .Where(b => b.Slug == slug && (isAuthenticated || b.Status == BlogStatus.Published))
             .Select(b => new BlogMetadataResponse
             (
                 b.Slug,
@@ -35,8 +36,9 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
     [HttpGet("html/{slug}")]
     public async Task<IActionResult> GetBlogHtml(string slug)
     {
+        bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
         var html = await _dbContext.Blogs
-            .Where(b => b.Slug == slug && b.Status == BlogStatus.Published)
+            .Where(b => b.Slug == slug && (isAuthenticated || b.Status == BlogStatus.Published))
             .Select(b => new BlogHtmlResponse(b.Slug, b.Html))
             .FirstOrDefaultAsync();
         return html is not null ? Ok(html) : NotFound();
