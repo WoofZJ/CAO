@@ -70,11 +70,9 @@ public class TimelineService(NavigationManager navigationManager)
             var timelineData = await client.GetFromJsonAsync<TimelineObj>("timeline.json");
             if (timelineData is null) return null;
             timelineData.Commits.Sort((a, b) => a.Date.CompareTo(b.Date));
-            timelineData.Tags.Sort((a, b) => a.Date.CompareTo(b.Date));
 
             List<CommitDto> commits = [];
             List<TimelineResponse> timelineList = [];
-            int tagIndex = 0;
 
             foreach (var commit in timelineData.Commits)
             {
@@ -86,17 +84,17 @@ public class TimelineService(NavigationManager navigationManager)
                     commit.Stats.Deletions,
                     commit.Date
                 ));
-
-                if (tagIndex < timelineData.Tags.Count && commit.Hash == timelineData.Tags[tagIndex].Commit)
+                var tag = timelineData.Tags.Find(t => t.Commit == commit.Hash);
+                if (tag is not null)
                 {
                     timelineList.Add(new TimelineResponse(
-                        timelineData.Tags[tagIndex].Name,
-                        timelineData.Tags[tagIndex].Body,
-                        timelineData.Tags[tagIndex].Date,
+                        tag.Name,
+                        tag.Body,
+                        tag.Date,
                         commits
                     ));
                     commits = [];
-                    tagIndex++;
+                    timelineData.Tags.Remove(tag);
                 }
             }
 
