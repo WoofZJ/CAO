@@ -14,4 +14,10 @@ public class AdminService(ApiService apiService)
 
     public async Task<BlogEditMetadataResponseDto?> UpdateBlogEditMetadataAsync(BlogEditMetadataDto metadataDto) =>
         await _apiService.PostAsync<BlogEditMetadataDto, BlogEditMetadataResponseDto>("admin/post/metadata", metadataDto);
+
+    public async Task<BlogEditMarkdownDto?> GetBlogEditMarkdownAsync(int id) =>
+        await _apiService.GetAsync<BlogEditMarkdownDto>($"admin/post/markdown/{id}");
+    
+    public async Task<BlogEditMarkdownResponseDto?> UpdateBlogEditMarkdownAsync(BlogEditMarkdownDto markdownDto) =>
+        await _apiService.PostAsync<BlogEditMarkdownDto, BlogEditMarkdownResponseDto>("admin/post/markdown", markdownDto);
 }

@@ -1,0 +1,104 @@
+@inject AdminService adminService;
+
+@if (loading)
+{
+    <Loading Message="正在加载文章 Markdown..." />
+}
+else if (notFound)
+{
+    <Alert Type="error" Message=@error />
+}
+else
+{
+    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box min-w-96 border p-4">
+        <legend class="fieldset-legend">正文</legend>
+        <label class="label">Markdown</label>
+        <textarea class="textarea w-full" rows="10" @bind="Markdown"></textarea>
+        <div class="flex gap-x-6 items-center mt-2">
+            <div class="grow">
+                @switch (submitStatus)
+                {
+                    case SubmitStatus.Submitting:
+                        <Loading Message="保存中..." />
+                        break;
+                    case SubmitStatus.Failed:
+                        <Alert Type="error" Message=@error />
+                        break;
+                    case SubmitStatus.Success:
+                        <Alert Type="success" Message="保存成功！" />
+                        break;
+                }
+            </div>
+            <button class="btn" @onclick="SaveMarkdownAsync" disabled="@(submitStatus == SubmitStatus.Submitting)">
+                保存
+            </button>
+        </div>
+    </fieldset>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public string Markdown { get; set; } = "";
+    private bool loading { get; set; } = false;
+    private bool notFound { get; set; } = false;
+
+    enum SubmitStatus
+    {
+        None,
+        Submitting,
+        Success,
+        Failed
+    }
+    private SubmitStatus submitStatus = SubmitStatus.None;
+    string error = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != 0)
+        {
+            loading = true;
+            await FetchMarkdownAsync(Id);
+            loading = false;
+        }
+    }
+
+    private async Task FetchMarkdownAsync(int id)
+    {
+        var markdown = await adminService.GetBlogEditMarkdownAsync(id);
+        if (markdown is not null)
+        {
+            Markdown = markdown.Markdown;
+        }
+        else
+        {
+            notFound = true;
+            error = "无法获取文章正文，文章不存在";
+        }
+    }
+
+    private async Task SaveMarkdownAsync()
+    {
+        submitStatus = SubmitStatus.Submitting;
+        StateHasChanged();
+        var markdown = new BlogEditMarkdownDto(
+            Id,
+            Markdown
+        );
+        BlogEditMarkdownResponseDto? response = await adminService.UpdateBlogEditMarkdownAsync(markdown);
+        if (response is null)
+        {
+            submitStatus = SubmitStatus.Failed;
+            error = "服务器暂不可用，过会再试试吧 ;-;";
+        }
+        else if(!response.Success)
+        {
+            submitStatus = SubmitStatus.Failed;
+            error = response.NotFound ? "保存失败，文章不存在！请先创建并保存文章元数据" : "保存失败，发生未知错误";
+        }
+        else
+        {
+            submitStatus = SubmitStatus.Success;
+        }
+    }
+}

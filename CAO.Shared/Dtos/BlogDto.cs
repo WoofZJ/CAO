@@ -36,3 +36,14 @@ public record BlogEditMetadataResponseDto(
     bool Success,
     bool SlugExists
 );
+
+public record BlogEditMarkdownDto(
+    int Id,
+    string Markdown
+);
+
+public record BlogEditMarkdownResponseDto(
+    int Id,
+    bool Success,
+    bool NotFound
+);
