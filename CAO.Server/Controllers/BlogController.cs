@@ -77,7 +77,7 @@ public class BlogController(CaoDbContext dbContext) : ControllerBase
             .CountAsync(b => b.Status == BlogStatus.Published && b.UpdatedAt.Month == DateTime.UtcNow.Month
                 && b.UpdatedAt.Year == DateTime.UtcNow.Year);
 
-        var allTags = await _dbContext.Blogs.Select(b => b.Tags).ToListAsync();
+        var allTags = await _dbContext.Blogs.Where(b => b.Status == BlogStatus.Published).Select(b => b.Tags).ToListAsync();
         var flatTags = allTags.SelectMany(t => t).ToList();
 
         int tagCount = flatTags.Distinct().Count();
