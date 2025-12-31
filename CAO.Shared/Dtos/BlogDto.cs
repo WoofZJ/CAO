@@ -15,6 +15,24 @@ public record BlogListItemDto(
 );
 
 public record BlogMarkdownDto(
-    string Slug,
+    int Id,
     string Markdown
+);
+
+public record BlogEditMetadataDto(
+    int Id,
+    string Title,
+    string Slug,
+    string Description,
+    string ImageUrl,
+    List<string> Tags,
+    int Status,
+    bool IsRecommended,
+    bool IsSticky
+);
+
+public record BlogEditMetadataResponseDto(
+    int Id,
+    bool Success,
+    bool SlugExists
 );
