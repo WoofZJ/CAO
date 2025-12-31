@@ -57,6 +57,11 @@
     {
         clearStats();
         StateHasChanged();
+        if (navigationManager.Uri.StartsWith($"{navigationManager.BaseUri}admin") ||
+            navigationManager.Uri.StartsWith($"{navigationManager.BaseUri}login"))
+        {
+            return;
+        }
         VisitGetResponse? response = await visitService.RecordVisitAsync();
         if (response != null)
         {
