@@ -2,7 +2,14 @@
 @attribute [Authorize]
 @inject BlogService blogService;
 
-<PageTitle>CodeArt.Online - 博客后台</PageTitle>
+<PageTitle>CodeArt.Online - 文章管理</PageTitle>
+
+<div class="breadcrumbs text-sm">
+    <ul>
+        <li><a href="/admin">后台</a></li>
+        <li>文章管理</li>
+    </ul>
+</div>
 
 <div class="mb-4">
     <a class="btn" href="/admin/post/edit">撰写新文章</a>

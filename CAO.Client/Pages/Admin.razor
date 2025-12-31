@@ -4,12 +4,18 @@
 
 <PageTitle>CodeArt.Online - 后台</PageTitle>
 
+<div class="breadcrumbs text-sm mb-4">
+    <ul>
+        <li>后台</li>
+    </ul>
+</div>
+
 <div class="flex flex-col gap-y-4">
 
     <div class="flex flex-row flex-wrap justify-center gap-4">
         <div class="card bg-base-200 min-w-96">
             <div class="card-body">
-                <h2 class="card-title">文章 ( @ToString(statistics?.TotalPosts) 篇 )</h2>
+                <h2 class="card-title">文章管理 ( @ToString(statistics?.TotalPosts) 篇 )</h2>
                 <div class="stats bg-base-300">
                     <div class="stat">
                         <div class="stat-title">发布</div>
@@ -31,7 +37,7 @@
         </div>
         <div class="card bg-base-200 min-w-96">
             <div class="card-body">
-                <h2 class="card-title">留言 ( @ToString(statistics?.TotalMessages) 条 )</h2>
+                <h2 class="card-title">留言管理 ( @ToString(statistics?.TotalMessages) 条 )</h2>
                 <div class="stats bg-base-300">
                     <div class="stat">
                         <div class="stat-title">通过</div>
