@@ -24,14 +24,14 @@ else
     }
     else
     {
-        <div class="px-6 lg:px-0 lg:w-3/4 flex flex-col mx-auto">
+        <div class="px-6 lg:px-0 lg:w-3/4 max-w-4xl flex flex-col mx-auto">
             @if (!string.IsNullOrEmpty(metadata.ImageUrl))
             {
                 <img src="@metadata.ImageUrl" class="max-h-80 object-cover" />
             }
 			<div class="divider"></div>
 			<div class="flex flex-col gap-y-1 items-center">
-				<h1 class="text-3xl font-bold text-center">
+				<h1 class="text-4xl font-bold text-center">
                     @metadata.Title
 				</h1>
 				<div class="flex flex-col lg:flex-row items-center gap-x-5">
@@ -61,8 +61,18 @@ else
 			</div>
 			<div class="divider"></div>
 			<article
-				class="prose max-w-full prose-headings:my-2 prose-img:my-2 prose-hr:my-5 prose-p:my-1 prose-li:my-1 prose-ul:my-1 prose-ol:my-1 prose-blockquote:my-5"
+				class="prose max-w-full prose-headings:my-2 prose-p:my-2 prose-p:indent-8 prose-li:my-1 prose-ul:my-2 prose-headings:underline prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-img:max-h-[512px] prose-img:mx-auto prose-img:my-1 prose-img:rounded-2xl"
 			>
+            <style>
+                .prose figure {
+                    margin: 0 0.25rem;
+                }
+                .prose figcaption {
+                    text-align: center;
+                    font-size: 0.875rem;
+                    margin-top: 0.25rem;
+                }
+            </style>
                 @((MarkupString)html.HtmlContent)
 			</article>
 		</div>
