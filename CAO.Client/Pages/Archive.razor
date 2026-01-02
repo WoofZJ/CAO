@@ -51,6 +51,10 @@ else
         if (archiveList is not null)
         {
             archiveGroup = archiveList
+                .Select(a => a with
+                {
+                    CreatedAt = a.CreatedAt.AddHours(8),
+                })
                 .GroupBy(a => a.CreatedAt.Year)
                 .OrderByDescending(g => g.Key)
                 .ToList();
